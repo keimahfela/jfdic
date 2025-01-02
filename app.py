@@ -11,10 +11,10 @@ def normalize_text(text):
     return unicodedata.normalize('NFKC', text)
 
 # Function to scrape the definition of a word
-def scrape_definition(word, page=1):
+def scrape_definition(word, page=1, per_page=5):
     try:
         # Define the URL
-        url = f"https://www.jfdictionary.com/search.php?terms={word}&page={page}"
+        url = f"https://www.jfdictionary.com/search.php?terms={word}"
         
         # Add the user-agent header
         headers = {
@@ -31,7 +31,11 @@ def scrape_definition(word, page=1):
         # Extract all definitions (update the selector as needed)
         definitions = soup.find_all('div', class_='details')  # Updated selector
         if definitions:
-            return [normalize_text(definition.get_text(strip=True)) for definition in definitions]
+            definitions = [normalize_text(definition.get_text(strip=True)) for definition in definitions]
+            # Simulate pagination by splitting the definitions into pages
+            start = (page - 1) * per_page
+            end = start + per_page
+            return definitions[start:end]
         return ["Definition not found."]
     except Exception as e:
         return [f"Error: {str(e)}"]
