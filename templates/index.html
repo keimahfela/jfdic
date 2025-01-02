@@ -80,7 +80,7 @@
                 `;
                 totalDefinitions = data.total_definitions;
                 prevPageButton.disabled = currentPage <= 1;
-                nextPageButton.disabled = data.definitions.length === 0;
+                nextPageButton.disabled = !data.has_more; // Disable if no more results
                 pageInfo.textContent = `Page ${currentPage} (${totalDefinitions} definitions)`;
             }
         }

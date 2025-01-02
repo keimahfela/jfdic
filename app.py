@@ -11,7 +11,7 @@ def normalize_text(text):
     return unicodedata.normalize('NFKC', text)
 
 # Function to scrape the definition of a word
-def scrape_definition(word, page=1):
+def scrape_definition(word, page=1, per_page=5):
     try:
         # Define the URL with the page parameter
         url = f"https://www.jfdictionary.com/search.php?terms={word}&p={page}"
@@ -32,10 +32,12 @@ def scrape_definition(word, page=1):
         definitions = soup.find_all('div', class_='details')  # Updated selector
         if definitions:
             definitions = [normalize_text(definition.get_text(strip=True)) for definition in definitions]
-            return definitions, len(definitions)  # Return definitions and total count
-        return ["Definition not found."], 0
+            # Check if there are more results
+            has_more = len(definitions) >= per_page
+            return definitions, len(definitions), has_more  # Return definitions, total count, and has_more flag
+        return ["Definition not found."], 0, False
     except Exception as e:
-        return [f"Error: {str(e)}"], 0
+        return [f"Error: {str(e)}"], 0, False
 
 # Root route
 @app.route('/')
@@ -48,20 +50,22 @@ def search():
     # Get the word and page from the query parameters
     word = request.args.get('word')
     page = request.args.get('page', default=1, type=int)
+    per_page = 5  # Number of definitions per page
     
     # If no word is provided, return an error
     if not word:
         return jsonify({"error": "Please provide a word."}), 400
     
     # Scrape the definitions for the given page
-    definitions, total_definitions = scrape_definition(word, page)
+    definitions, total_definitions, has_more = scrape_definition(word, page, per_page)
     
     # Create the response JSON
     response_data = {
         "word": word,
         "definitions": definitions,
         "page": page,
-        "total_definitions": total_definitions
+        "total_definitions": total_definitions,
+        "has_more": has_more  # Indicates if there are more results
     }
     
     # Print the raw JSON response for debugging
