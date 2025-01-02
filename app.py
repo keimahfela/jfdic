@@ -14,7 +14,7 @@ def normalize_text(text):
 def scrape_definition(word, page=1):
     try:
         # Define the URL with the page parameter
-        url = f"https://www.jfdictionary.com/search.php?terms={word}&page={page}"
+        url = f"https://www.jfdictionary.com/search.php?terms={word}&p={page}"
         
         # Add the user-agent header
         headers = {
