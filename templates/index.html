@@ -5,6 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dictionary App</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        #pagination {
+            display: none; /* Hide pagination by default */
+            margin-top: 20px;
+        }
+        #pagination button {
+            margin: 0 5px;
+            padding: 5px 10px;
+            font-size: 16px;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -22,11 +33,14 @@
 
     <script>
         let currentPage = 1;
+        let currentWord = '';
 
         document.getElementById('searchForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             currentPage = 1;
+            currentWord = document.getElementById('wordInput').value;
             await fetchDefinitions();
+            document.getElementById('pagination').style.display = 'block'; // Show pagination after search
         });
 
         document.getElementById('prevPage').addEventListener('click', async () => {
@@ -42,10 +56,12 @@
         });
 
         async function fetchDefinitions() {
-            const word = document.getElementById('wordInput').value;
-            const response = await fetch(`/search?word=${encodeURIComponent(word)}&page=${currentPage}`);
+            const response = await fetch(`/search?word=${encodeURIComponent(currentWord)}&page=${currentPage}`);
             const data = await response.json();
             const resultDiv = document.getElementById('result');
+            const prevPageButton = document.getElementById('prevPage');
+            const nextPageButton = document.getElementById('nextPage');
+
             if (data.error) {
                 resultDiv.innerHTML = `<p class="error">${data.error}</p>`;
             } else {
@@ -54,8 +70,8 @@
                     <h2>${data.word}</h2>
                     ${definitionsHTML}
                 `;
-                document.getElementById('prevPage').disabled = currentPage <= 1;
-                document.getElementById('nextPage').disabled = data.definitions.length === 0;
+                prevPageButton.disabled = currentPage <= 1;
+                nextPageButton.disabled = data.definitions.length === 0;
             }
         }
     </script>
