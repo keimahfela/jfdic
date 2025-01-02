@@ -48,8 +48,8 @@ def search():
     # Scrape the definition
     definition = scrape_definition(word)
     
-    # Return the result as JSON
-    return jsonify({"word": word, "definition": definition})
+    # Return the result as JSON with ensure_ascii=False
+    return jsonify({"word": word, "definition": definition}), 200, {'Content-Type': 'application/json; charset=utf-8'}
 
 # Run the app
 if __name__ == '__main__':
