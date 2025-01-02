@@ -35,10 +35,10 @@ def scrape_definition(word, page=1, per_page=5):
             # Simulate pagination by splitting the definitions into pages
             start = (page - 1) * per_page
             end = start + per_page
-            return definitions[start:end]
-        return ["Definition not found."]
+            return definitions[start:end], len(definitions)  # Return definitions and total count
+        return ["Definition not found."], 0
     except Exception as e:
-        return [f"Error: {str(e)}"]
+        return [f"Error: {str(e)}"], 0
 
 # Root route
 @app.route('/')
@@ -57,10 +57,15 @@ def search():
         return jsonify({"error": "Please provide a word."}), 400
     
     # Scrape the definitions for the given page
-    definitions = scrape_definition(word, page)
+    definitions, total_definitions = scrape_definition(word, page)
     
     # Create the response JSON
-    response_data = {"word": word, "definitions": definitions, "page": page}
+    response_data = {
+        "word": word,
+        "definitions": definitions,
+        "page": page,
+        "total_definitions": total_definitions
+    }
     
     # Print the raw JSON response for debugging
     import json

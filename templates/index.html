@@ -34,6 +34,8 @@
     <script>
         let currentPage = 1;
         let currentWord = '';
+        let totalDefinitions = 0;
+        const perPage = 5; // Number of definitions per page
 
         document.getElementById('searchForm').addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -70,8 +72,9 @@
                     <h2>${data.word}</h2>
                     ${definitionsHTML}
                 `;
+                totalDefinitions = data.total_definitions;
                 prevPageButton.disabled = currentPage <= 1;
-                nextPageButton.disabled = data.definitions.length === 0;
+                nextPageButton.disabled = currentPage * perPage >= totalDefinitions;
             }
         }
     </script>
