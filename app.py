@@ -11,7 +11,7 @@ def scrape_definition(word):
         # Define the URL
         url = f"https://www.jfdictionary.com/search.php?terms={word}"
         
-        # Add the user-agent header to mimic a browser
+        # Add the user-agent header
         headers = {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
         }
@@ -22,8 +22,8 @@ def scrape_definition(word):
         # Parse the response
         soup = BeautifulSoup(response.text, 'html.parser')
         
-        # Extract the definition (update the selector as needed)
-        definition = soup.find('div', class_='definition')  # Update this selector
+        # Extract the definition using the correct selector
+        definition = soup.find('div', class_='details')  # Updated selector
         if definition:
             return definition.get_text(strip=True)
         return "Definition not found."
