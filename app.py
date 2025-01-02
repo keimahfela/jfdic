@@ -1,9 +1,14 @@
 from flask import Flask, request, jsonify
 import requests
 from bs4 import BeautifulSoup
+import unicodedata
 
 # Create the Flask app
 app = Flask(__name__)
+
+# Function to normalize text
+def normalize_text(text):
+    return unicodedata.normalize('NFKC', text)
 
 # Function to scrape the definition of a word
 def scrape_definition(word):
@@ -18,6 +23,7 @@ def scrape_definition(word):
         
         # Make the request with the headers
         response = requests.get(url, headers=headers)
+        response.encoding = 'utf-8'  # Ensure proper encoding
         
         # Parse the response
         soup = BeautifulSoup(response.text, 'html.parser')
@@ -25,7 +31,7 @@ def scrape_definition(word):
         # Extract the definition using the correct selector
         definition = soup.find('div', class_='details')  # Updated selector
         if definition:
-            return definition.get_text(strip=True)
+            return normalize_text(definition.get_text(strip=True))
         return "Definition not found."
     except Exception as e:
         return f"Error: {str(e)}"
