@@ -11,10 +11,10 @@ def normalize_text(text):
     return unicodedata.normalize('NFKC', text)
 
 # Function to scrape the definition of a word
-def scrape_definition(word, page=1, per_page=5):
+def scrape_definition(word, page=1):
     try:
-        # Define the URL
-        url = f"https://www.jfdictionary.com/search.php?terms={word}"
+        # Define the URL with the page parameter
+        url = f"https://www.jfdictionary.com/search.php?terms={word}&page={page}"
         
         # Add the user-agent header
         headers = {
@@ -32,10 +32,7 @@ def scrape_definition(word, page=1, per_page=5):
         definitions = soup.find_all('div', class_='details')  # Updated selector
         if definitions:
             definitions = [normalize_text(definition.get_text(strip=True)) for definition in definitions]
-            # Simulate pagination by splitting the definitions into pages
-            start = (page - 1) * per_page
-            end = start + per_page
-            return definitions[start:end], len(definitions)  # Return definitions and total count
+            return definitions, len(definitions)  # Return definitions and total count
         return ["Definition not found."], 0
     except Exception as e:
         return [f"Error: {str(e)}"], 0
@@ -59,17 +56,12 @@ def search():
     # Scrape the definitions for the given page
     definitions, total_definitions = scrape_definition(word, page)
     
-    # Calculate the total number of pages
-    per_page = 5
-    total_pages = (total_definitions + per_page - 1) // per_page  # Round up
-    
     # Create the response JSON
     response_data = {
         "word": word,
         "definitions": definitions,
         "page": page,
-        "total_definitions": total_definitions,
-        "total_pages": total_pages
+        "total_definitions": total_definitions
     }
     
     # Print the raw JSON response for debugging
