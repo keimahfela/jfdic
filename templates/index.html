@@ -20,13 +20,32 @@
             font-size: 14px;
             color: #555;
         }
+        #suggestions {
+            position: absolute;
+            background: white;
+            border: 1px solid #ccc;
+            max-height: 150px;
+            overflow-y: auto;
+            width: 100%;
+            z-index: 1000;
+        }
+        #suggestions div {
+            padding: 8px;
+            cursor: pointer;
+        }
+        #suggestions div:hover {
+            background: #f0f0f0;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Dictionary App</h1>
         <form id="searchForm">
-            <input type="text" id="wordInput" placeholder="Enter a word..." required>
+            <div style="position: relative;">
+                <input type="text" id="wordInput" placeholder="Enter a word..." required autocomplete="off">
+                <div id="suggestions"></div>
+            </div>
             <button type="submit">Search</button>
         </form>
         <div id="result"></div>
@@ -41,6 +60,35 @@
         let currentPage = 1;
         let currentWord = '';
         let totalDefinitions = 0;
+
+        // Fetch and display search suggestions
+        document.getElementById('wordInput').addEventListener('input', async (e) => {
+            const partialWord = e.target.value;
+            if (partialWord.length >= 2) { // Only fetch suggestions after 2 characters
+                const response = await fetch(`/suggest?q=${encodeURIComponent(partialWord)}`);
+                const suggestions = await response.json();
+                const suggestionsDiv = document.getElementById('suggestions');
+                suggestionsDiv.innerHTML = suggestions.map(suggestion => `
+                    <div onclick="selectSuggestion('${suggestion}')">${suggestion}</div>
+                `).join('');
+                suggestionsDiv.style.display = suggestions.length ? 'block' : 'none';
+            } else {
+                document.getElementById('suggestions').style.display = 'none';
+            }
+        });
+
+        // Select a suggestion and populate the search box
+        function selectSuggestion(suggestion) {
+            document.getElementById('wordInput').value = suggestion;
+            document.getElementById('suggestions').style.display = 'none';
+        }
+
+        // Hide suggestions when clicking outside
+        document.addEventListener('click', (e) => {
+            if (e.target.id !== 'wordInput') {
+                document.getElementById('suggestions').style.display = 'none';
+            }
+        });
 
         document.getElementById('searchForm').addEventListener('submit', async (e) => {
             e.preventDefault();
