@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 import requests
 from bs4 import BeautifulSoup
 import unicodedata
@@ -39,7 +39,7 @@ def scrape_definition(word):
 # Root route
 @app.route('/')
 def home():
-    return "Welcome to the Dictionary App!"
+    return render_template('index.html')  # Serve the index.html file
 
 # Search route
 @app.route('/search', methods=['GET'])
@@ -54,11 +54,15 @@ def search():
     # Scrape the definition
     definition = scrape_definition(word)
     
-    # Print the response for debugging
-    print(f"Word: {word}, Definition: {definition}")
+    # Create the response JSON
+    response_data = {"word": word, "definition": definition}
+    
+    # Print the raw JSON response for debugging
+    import json
+    print("Raw JSON Response:", json.dumps(response_data, ensure_ascii=False))
     
     # Return the result as JSON with ensure_ascii=False
-    return jsonify({"word": word, "definition": definition}), 200, {'Content-Type': 'application/json; charset=utf-8'}
+    return jsonify(response_data), 200, {'Content-Type': 'application/json; charset=utf-8'}
 
 # Run the app
 if __name__ == '__main__':
