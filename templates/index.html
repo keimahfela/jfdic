@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dictionary App</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Dictionary App</h1>
+        <form id="searchForm">
+            <input type="text" id="wordInput" placeholder="Enter a word..." required>
+            <button type="submit">Search</button>
+        </form>
+        <div id="result"></div>
+    </div>
+
+    <script>
+        document.getElementById('searchForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const word = document.getElementById('wordInput').value;
+            const response = await fetch(`/search?word=${word}`);
+            const data = await response.json();
+            const resultDiv = document.getElementById('result');
+            if (data.error) {
+                resultDiv.innerHTML = `<p class="error">${data.error}</p>`;
+            } else {
+                resultDiv.innerHTML = `
+                    <h2>${data.word}</h2>
+                    <p>${data.definition}</p>
+                `;
+            }
+        });
+    </script>
+</body>
+</html>
