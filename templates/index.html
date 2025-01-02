@@ -20,7 +20,7 @@
         document.getElementById('searchForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const word = document.getElementById('wordInput').value;
-            const response = await fetch(`/search?word=${word}`);
+            const response = await fetch(`/search?word=${encodeURIComponent(word)}`);
             const data = await response.json();
             const resultDiv = document.getElementById('result');
             if (data.error) {

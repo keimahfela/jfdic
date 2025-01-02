@@ -54,6 +54,9 @@ def search():
     # Scrape the definition
     definition = scrape_definition(word)
     
+    # Print the response for debugging
+    print(f"Word: {word}, Definition: {definition}")
+    
     # Return the result as JSON with ensure_ascii=False
     return jsonify({"word": word, "definition": definition}), 200, {'Content-Type': 'application/json; charset=utf-8'}
 
