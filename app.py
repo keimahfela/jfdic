@@ -11,10 +11,10 @@ def normalize_text(text):
     return unicodedata.normalize('NFKC', text)
 
 # Function to scrape the definition of a word
-def scrape_definition(word):
+def scrape_definition(word, page=1):
     try:
         # Define the URL
-        url = f"https://www.jfdictionary.com/search.php?terms={word}"
+        url = f"https://www.jfdictionary.com/search.php?terms={word}&page={page}"
         
         # Add the user-agent header
         headers = {
@@ -28,13 +28,13 @@ def scrape_definition(word):
         # Parse the response
         soup = BeautifulSoup(response.text, 'html.parser')
         
-        # Extract the definition using the correct selector
-        definition = soup.find('div', class_='details')  # Updated selector
-        if definition:
-            return normalize_text(definition.get_text(strip=True))
-        return "Definition not found."
+        # Extract all definitions (update the selector as needed)
+        definitions = soup.find_all('div', class_='details')  # Updated selector
+        if definitions:
+            return [normalize_text(definition.get_text(strip=True)) for definition in definitions]
+        return ["Definition not found."]
     except Exception as e:
-        return f"Error: {str(e)}"
+        return [f"Error: {str(e)}"]
 
 # Root route
 @app.route('/')
@@ -44,18 +44,19 @@ def home():
 # Search route
 @app.route('/search', methods=['GET'])
 def search():
-    # Get the word from the query parameters
+    # Get the word and page from the query parameters
     word = request.args.get('word')
+    page = request.args.get('page', default=1, type=int)
     
     # If no word is provided, return an error
     if not word:
         return jsonify({"error": "Please provide a word."}), 400
     
-    # Scrape the definition
-    definition = scrape_definition(word)
+    # Scrape the definitions for the given page
+    definitions = scrape_definition(word, page)
     
     # Create the response JSON
-    response_data = {"word": word, "definition": definition}
+    response_data = {"word": word, "definitions": definitions, "page": page}
     
     # Print the raw JSON response for debugging
     import json

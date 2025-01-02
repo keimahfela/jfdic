@@ -14,24 +14,50 @@
             <button type="submit">Search</button>
         </form>
         <div id="result"></div>
+        <div id="pagination">
+            <button id="prevPage" disabled>Previous</button>
+            <button id="nextPage" disabled>Next</button>
+        </div>
     </div>
 
     <script>
+        let currentPage = 1;
+
         document.getElementById('searchForm').addEventListener('submit', async (e) => {
             e.preventDefault();
+            currentPage = 1;
+            await fetchDefinitions();
+        });
+
+        document.getElementById('prevPage').addEventListener('click', async () => {
+            if (currentPage > 1) {
+                currentPage--;
+                await fetchDefinitions();
+            }
+        });
+
+        document.getElementById('nextPage').addEventListener('click', async () => {
+            currentPage++;
+            await fetchDefinitions();
+        });
+
+        async function fetchDefinitions() {
             const word = document.getElementById('wordInput').value;
-            const response = await fetch(`/search?word=${encodeURIComponent(word)}`);
+            const response = await fetch(`/search?word=${encodeURIComponent(word)}&page=${currentPage}`);
             const data = await response.json();
             const resultDiv = document.getElementById('result');
             if (data.error) {
                 resultDiv.innerHTML = `<p class="error">${data.error}</p>`;
             } else {
+                let definitionsHTML = data.definitions.map(definition => `<p>${definition}</p>`).join('');
                 resultDiv.innerHTML = `
                     <h2>${data.word}</h2>
-                    <p>${data.definition}</p>
+                    ${definitionsHTML}
                 `;
+                document.getElementById('prevPage').disabled = currentPage <= 1;
+                document.getElementById('nextPage').disabled = data.definitions.length === 0;
             }
-        });
+        }
     </script>
 </body>
 </html>
