@@ -59,12 +59,17 @@ def search():
     # Scrape the definitions for the given page
     definitions, total_definitions = scrape_definition(word, page)
     
+    # Calculate the total number of pages
+    per_page = 5
+    total_pages = (total_definitions + per_page - 1) // per_page  # Round up
+    
     # Create the response JSON
     response_data = {
         "word": word,
         "definitions": definitions,
         "page": page,
-        "total_definitions": total_definitions
+        "total_definitions": total_definitions,
+        "total_pages": total_pages
     }
     
     # Print the raw JSON response for debugging
