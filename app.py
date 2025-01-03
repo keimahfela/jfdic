@@ -75,36 +75,6 @@ def search():
     # Return the result as JSON with ensure_ascii=False
     return jsonify(response_data), 200, {'Content-Type': 'application/json; charset=utf-8'}
 
-# Suggestions route
-@app.route('/suggest', methods=['GET'])
-def suggest():
-    # Get the partial word from the query parameters
-    partial_word = request.args.get('q')
-    
-    # If no partial word is provided, return an empty list
-    if not partial_word:
-        return jsonify([])
-    
-    # Define the URL for fetching suggestions
-    url = f"https://www.jfdictionary.com/suggest.php?q={partial_word}"
-    
-    # Add the user-agent header
-    headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
-    }
-    
-    try:
-        # Make the request with the headers
-        response = requests.get(url, headers=headers)
-        response.encoding = 'utf-8'  # Ensure proper encoding
-        
-        # Parse the response (assuming the website returns a JSON array of suggestions)
-        suggestions = response.json()
-        return jsonify(suggestions)
-    except:
-        # Fallback: Return an empty list if the request fails
-        return jsonify([])
-
 # Run the app
 if __name__ == '__main__':
     app.run(debug=True)
